@@ -22,9 +22,9 @@
 - represent colours as integers in range \[1, bound]
 - either breaker or maker wins at end of game / round
 - code maker role is "passive" once they submit the code
-  - game takes care of algorithm for giving feedback to code breaker
+  - game takes care of algorithm for giving response to code breaker
     - returns answer based on comparing breaker's guesses against maker's code
-    - prevents "cheating" from maker who can lie about feedback
+    - prevents "cheating" from maker who can lie about response
 - scenario 1: human = breaker, computer = maker
   - computer set / creates code
   - get input from human as guesses to try to correctly guess the computer's code
@@ -73,9 +73,9 @@
     - game is over and code breaker won
     - display board and winner message
     - break out of / return from outer (game) loop
-  - else code breaker's guess is at most partially correct so provide them with feedback
+  - else code breaker's guess is at most partially correct so provide them with response
     - get the number of correctly guessed elements and the number of misplaced elements
-    - update the game state with the feedback for the code breaker's guess
+    - update the game state with the response for the code breaker's guess
 
 ## Expanded Game Logic, Data Structures, etc.
 
@@ -89,9 +89,9 @@
     - @`guesses`: empty 2D int array that stores each guess the code breaker makes per try as an int array
       - 0 <= `guesses.length` <= @`max_guesses`
       - `guesses[i].length` = @`code_length`
-    - @`feedback`: empty array of hashes that stores the feedback for each guess submitted by the code breaker
-      - `feedback.length` == @`guesses.length`
-      - `feedback[i]` is a hashmap of 2 keys `:correct` and `misplaced`
+    - @`responses`: empty array of hashes that stores the response for each guess submitted by the code breaker
+      - `response.length` == @`guesses.length`
+      - `response[i]` is a hashmap of 2 keys `:correct` and `misplaced`
         - each key stores an int represent the count of each completely matching (`:correct`) or matching but in wrong order (`:misplaced`) piece / part of the code breaker's code guess
   - play()
     - while true
@@ -110,7 +110,7 @@
         - return
       - update_game(
           guess,
-          `get_feedback(guess)`
+          `get_response(guess)`
         )
   - get_player_breaker()
     - returns the element in @`players` that has the @`role` property of `:breaker`
@@ -121,13 +121,12 @@
   - is_valid_guess?(guess)
     - returns true or false based on if `guess` is a @`code_length`-sized string composed only of any elements in `choices`
     - uses @`choices` to check
-  - get_feedback(guess)
+  - get_response(guess)
     - assumes `guess` is an int array
     - compares `guess` against @`secret_code` and returns a hashmap of 2 keys (`:correct`, `:misplaced`) that each map to a non-negative int
     - initialise variables
       - hashmap `res` with keys `:correct` and `:misplaced` but mapped to 0
       - empty set `correct_indices`
-      - loop thru `code`
     - loop thru each el in `guess` by index `i`
       - if `guess[i]` == @`secret_code[i]`,
         - `res[:correct]`++
@@ -138,17 +137,17 @@
       - if `guess[i]` is in `misplaced_choices`,
         - `res[:misplaced]`++
     - return `res`
+  - parse_guess(guess)
+    - assumes `guess` is a valid code string
+    - returns `guess` but converted as an int array
   - did_maker_win?()
     - returns true if length of @`guesses` > @`max_guesses` else false
-  - parse_guess(code)
-    - assumes `code` is a valid code string
-    - returns `code` but converted as an int array
   - did_breaker_win?(code)
     - assumes `code` is an int array
     - returns true if `code` matches @`secret_code` exactly else false
-  - update_game(guess, feedback)
+  - update_game(guess, response)
     - pushes `parse_guess(guess)` to @`guesses`
-    - pushes `feedback` to @`feedback`
+    - pushes `response` to @`responses`
   - clear_console()
     - clears the terminal's / conmsole's current output
   - print_board()
@@ -171,7 +170,7 @@
   - print_breaker_prompt()
     - prints the following in the terminal / console output:
     ```
-    The secret code is a 4-length sequence
+    The secret code is a 4-lengthed sequence
     of any combination of the below choices
     that may contain duplicates.
 
