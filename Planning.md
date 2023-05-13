@@ -140,14 +140,14 @@
     - return `res`
   - did_maker_win?()
     - returns true if length of @`guesses` > @`max_guesses` else false
-  - code_string_to_array(code)
+  - parse_guess(code)
     - assumes `code` is a valid code string
     - returns `code` but converted as an int array
   - did_breaker_win?(code)
     - assumes `code` is an int array
     - returns true if `code` matches @`secret_code` exactly else false
   - update_game(guess, feedback)
-    - pushes `code_string_to_array(guess)` to @`guesses`
+    - pushes `parse_guess(guess)` to @`guesses`
     - pushes `feedback` to @`feedback`
   - clear_console()
     - clears the terminal's / conmsole's current output
@@ -203,7 +203,7 @@
       - @`game`.print_breaker_prompt
       - input = get input from console read
       - if @`game`.is_valid_guess(input)
-        - return @`game`.code_string_to_array(input)
+        - return @`game`.parse_guess(input)
       - @`game`.print_invalid_input_message
 
 - `ComputerPlayer` class that inherits from `Player` class
