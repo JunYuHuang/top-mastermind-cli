@@ -102,6 +102,13 @@ RSpec.describe 'Game' do
   #   end
   # end
 
+  describe "parse_guess" do
+    it "returns [1,2,3,4] if called with '1234'" do
+      game = Game.new(ComputerPlayer, HumanPlayer)
+      expect(game.parse_guess("1234")).to eq([1,2,3,4])
+    end
+  end
+
   describe 'did_maker_win?' do
     it "returns false if no guess attempts have been made" do
       game = Game.new(ComputerPlayer, HumanPlayer)
@@ -144,6 +151,23 @@ RSpec.describe 'Game' do
       game.update_game(:dummy_guess, :dummy_response)
       final_state = [game.guesses.size, game.guesses.size]
       expect(final_state).to eq([1, 1])
+    end
+  end
+end
+
+RSpec.describe 'ComputerPlayer' do
+  describe 'get_code' do
+    it "works if called" do
+      game = Game.new(ComputerPlayer, HumanPlayer)
+      cpu_player = game.get_player_maker
+      expect(cpu_player.role).to eq(:maker)
+      expect(cpu_player.to_s).to eq("Computer")
+
+      code = cpu_player.get_code
+      expect(code.size).to eq(game.code_length)
+      code.each do |el|
+        expect(game.choices.include?(el)).to eq(true)
+      end
     end
   end
 end
