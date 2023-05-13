@@ -57,9 +57,10 @@ class Game
     true
   end
 
-  # TODO: method incomplete
+  # TODO - has bugs handling certain cases
   def get_response(guess)
     res = { :correct => 0, :misplaced => 0 }
+
     correct_indices = Set.new
     guess.each_with_index do |value, i|
       if value == @secret_code[i]
@@ -67,7 +68,22 @@ class Game
         correct_indices.add(i)
       end
     end
-    # misplaced_choices = Set.new([])
+
+    misplaced_choices = Set.new
+    @secret_code.each_with_index do |value, i|
+      next if correct_indices.include?(i)
+      misplaced_choices.add(value)
+    end
+
+    puts("correct_indices: #{correct_indices.to_a}")
+    puts("misplaced_choices: #{misplaced_choices.to_a}")
+
+    guess.each_with_index do |value, i|
+      next if correct_indices.include?(i)
+      res[:misplaced] += 1 if misplaced_choices.include?(value)
+    end
+
+    res
   end
 
   # converts string `guess` to int array so it can be
