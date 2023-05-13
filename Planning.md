@@ -79,10 +79,153 @@
 
 ## Expanded Game Logic, Data Structures, etc.
 
-- TODO
+- `Game` class
+  - constructor(player_maker_class, player_breaker_class)
+    - @`code_length`: int set to 4
+    - @`choices`: set of ints in \[1, 6] that represent the colours red, green, blue, purple, yellow, orange
+    - @`max_guesses`: int set to 12
+    - @`players`: array of size 2 that holds instances of the players
+    - @`secret_code`: int array of size @`code_length` initially set to an empty array
+    - @`guesses`: empty 2D int array that stores each guess the code breaker makes per try as an int array
+      - 0 <= `guesses.length` <= @`max_guesses`
+      - `guesses[i].length` = @`code_length`
+    - @`feedback`: empty array of hashes that stores the feedback for each guess submitted by the code breaker
+      - `feedback.length` == @`guesses.length`
+      - `feedback[i]` is a hashmap of 2 keys `:correct` and `misplaced`
+        - each key stores an int represent the count of each completely matching (`:correct`) or matching but in wrong order (`:misplaced`) piece / part of the code breaker's code guess
+  - play()
+    - while true
+      - if not `is_secret_code_set?`
+        - @`secret_code` = `get_player_maker`.make_code
+      - if `did_maker_win?`
+        - `clear_console`
+        - `print_board`
+        - `print_maker_won`
+        - return
+      - guess = `get_player_breaker`.get_guess
+      - if `did_breaker_win(guess)?`
+        - `clear_console`
+        - `print_board`
+        - `print_breaker_won`
+        - return
+      - update_game(
+          guess,
+          `get_feedback(guess)`
+        )
+  - get_player_breaker()
+    - returns the element in @`players` that has the @`role` property of `:breaker`
+  - get_player_maker()
+    - returns the element in @`players` that has the @`role` property of `:maker`
+  - is_secret_code_set?()
+    - returns true if @`secret_code` has been set by the code maker else false
+  - is_valid_guess?(guess)
+    - returns true or false based on if `guess` is a @`code_length`-sized string composed only of any elements in `choices`
+    - uses @`choices` to check
+  - set_secret_code(code)
+    - sets @`secret_code` to `code`
+  - add_guess(guess)
+    - assumes `guess` is an int array
+    - pushes to @`guesses`
+  - get_feedback(guess)
+    - assumes `guess` is an int array
+    - compares `guess` against @`secret_code` and returns a hashmap of 2 keys (`:correct`, `:misplaced`) that each map to a non-negative int
+    - initialise variables
+      - hashmap `res` with keys `:correct` and `:misplaced` but mapped to 0
+      - empty set `correct_indices`
+      - loop thru `code`
+    - loop thru each el in `guess` by index `i`
+      - if `guess[i]` == @`secret_code[i]`,
+        - `res[:correct]`++
+        - `correct_indices`.add(i)
+    - `misplaced_choices` = new set from @`secret_code` but with all elements whose indices are in `correct_indices` filtered out
+    - loop thru each el in `guess` by index `i`
+      - if `i` is in `correct_indices`, continue
+      - if `guess[i]` is in `misplaced_choices`,
+        - `res[:misplaced]`++
+    - return `res`
+  - did_maker_win?()
+    - returns true if length of @`guesses` > @`max_guesses` else false
+  - code_string_to_array(code)
+    - assumes `code` is a valid code string
+    - returns `code` but converted as an int array
+  - did_breaker_win?(code)
+    - assumes `code` is an int array
+    - returns true if `code` matches @`secret_code` exactly else false
+  - update_game(guess, feedback)
+    - pushes `code_string_to_array(guess)` to @`guesses`
+    - pushes `feedback` to @`feedback`
+  - clear_console()
+    - clears the terminal's / conmsole's current output
+  - print_board()
+    - prints the following 4 x 13 (col x row) table in the terminal / console output:
+    ```
+    Turn  Guess      OK  x
+    1     1 2 3 4     0  0
+    2     1 2 3 4     0  0
+    3     1 2 3 4     0  0
+    4     1 2 3 4     0  0
+    5     1 2 3 4     0  0
+    6     1 2 3 4     0  0
+    7     1 2 3 4     0  0
+    8     1 2 3 4     0  0
+    9     1 2 3 4     0  0
+    10    1 2 3 4     0  0
+    11    1 2 3 4     0  0
+    12    1 2 3 4     0  0
+    ```
+  - print_breaker_prompt()
+    - prints the following in the terminal / console output:
+    ```
+    The secret code is a 4-length sequence
+    of any combination of the below choices
+    that may contain duplicates.
+
+    Possible choices: 1, 2, 3, 4, 5, 6
+    Guesses attempts left: 11
+    Enter your guess (no spaces):
+    ```
+  - print_invalid_input_message(input)
+    - prints `"input" is not a valid guess. Try again.` to the console output
+
+  - print_breaker_won()
+    - prints `Game ended: #{get_player_breaker.to_s} won!`
+  - print_maker_won()
+    - prints `Game ended: #{get_player_maker.to_s} won!`
+
+- `Player` class
+  - constructor(game, role)
+    - @`game`: ref to instance of `Game` class
+    - @`role`: symbol that is either `:maker` or `:breaker`
+
+- `HumanPlayer` class that inherits from `Player` class
+  - @@`NAME` = 'Human`;
+  - to_s()
+    - returns @@`NAME`
+  - get_guess()
+    - while true
+      - @`game`.clear_console
+      - @`game`.print_board
+      - @`game`.print_breaker_prompt
+      - input = get input from console read
+      - if @`game`.is_valid_code(input)
+        - return @`game`.code_string_to_array(input)
+      - @`game`.print_invalid_input_message
+
+- `ComputerPlayer` class that inherits from `Player` class
+  - @@`NAME` = 'Computer`;
+  - to_s()
+    - returns @@`NAME`
+  - make_code(game)
+    - `options`: gets copy of @`game`.choices as an array
+    - initialise empty int array `res`
+    - randomly pick and push @`game`.code_length code pieces to `res` to form the secret code
+      - use built-in `Random` class and its `rand()` method
+    - return `res`
+
+- also possible: wrap all classes above inside a `Mastermind` module
 
 ## UI Design
-
+<!--
 ### Screen Design 1
 
 ```
@@ -121,30 +264,30 @@ that may contain duplicates.
 Possible choices: 1, 2, 3, 4, 5, 6
 Guesses left: 11
 Enter your guess (no spaces):
-```
+``` -->
 
 ### Screen Design 3
 
 ```
-Turn  Guess      OK  x
-1     1 2 3 4     0  0
-2     1 2 3 4     0  0
-3     1 2 3 4     0  0
-4     1 2 3 4     0  0
-5     1 2 3 4     0  0
-6     1 2 3 4     0  0
-7     1 2 3 4     0  0
-8     1 2 3 4     0  0
-9     1 2 3 4     0  0
-10    1 2 3 4     0  0
-11    1 2 3 4     0  0
-12    1 2 3 4     0  0
+Tries  Guess      OK  x
+1      1 2 3 4     0  0
+2      1 2 3 4     0  0
+3      1 2 3 4     0  0
+4      1 2 3 4     0  0
+5      1 2 3 4     0  0
+6      1 2 3 4     0  0
+7      1 2 3 4     0  0
+8      1 2 3 4     0  0
+9      1 2 3 4     0  0
+10     1 2 3 4     0  0
+11     1 2 3 4     0  0
+12     1 2 3 4     0  0
 
 The secret code is a 4-length sequence
 of any combination of the below choices
 that may contain duplicates.
 
 Possible choices: 1, 2, 3, 4, 5, 6
-Guesses left: 11
+Guesses attempts left: 11
 Enter your guess (no spaces):
 ```
