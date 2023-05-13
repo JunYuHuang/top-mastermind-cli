@@ -24,6 +24,41 @@ class Game
   attr_accessor(:guesses)
   attr_accessor(:secret_code)
   attr_accessor(:feedback)
+
+  def play
+    # TODO
+  end
+
+  def get_player_breaker
+    res = @players.select { |player| player.role == :breaker }
+    res[0]
+  end
+
+  def get_player_maker
+    res = @players.select { |player| player.role == :maker }
+    res[0]
+  end
+
+  def is_secret_code_set?
+    return @secret_code.size > 0
+  end
+
+  def is_valid_guess?(guess)
+    return false if guess.class != String
+    return false if guess.size != @code_length
+
+    guess = guess.split("")
+    return false if guess.size != @code_length
+    guess.each do |piece|
+      return false if !@choices.include?(piece.to_i)
+    end
+
+    true
+  end
+
+  def get_feedback(guess)
+    # TODO
+  end
 end
 
 class Player
