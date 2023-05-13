@@ -198,7 +198,7 @@
     - @`role`: symbol that is either `:maker` or `:breaker`
 
 - `HumanPlayer` class that inherits from `Player` class
-  - @@`NAME` = 'Human`;
+  - @@`NAME` = 'Human';
   - to_s()
     - returns @@`NAME`
   - get_guess()
@@ -212,7 +212,7 @@
       - @`game`.print_invalid_input_message
 
 - `ComputerPlayer` class that inherits from `Player` class
-  - @@`NAME` = 'Computer`;
+  - @@`NAME` = 'Computer';
   - to_s()
     - returns @@`NAME`
   - make_code(game)
