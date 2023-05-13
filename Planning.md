@@ -121,11 +121,6 @@
   - is_valid_guess?(guess)
     - returns true or false based on if `guess` is a @`code_length`-sized string composed only of any elements in `choices`
     - uses @`choices` to check
-  - set_secret_code(code)
-    - sets @`secret_code` to `code`
-  - add_guess(guess)
-    - assumes `guess` is an int array
-    - pushes to @`guesses`
   - get_feedback(guess)
     - assumes `guess` is an int array
     - compares `guess` against @`secret_code` and returns a hashmap of 2 keys (`:correct`, `:misplaced`) that each map to a non-negative int
@@ -207,7 +202,7 @@
       - @`game`.print_board
       - @`game`.print_breaker_prompt
       - input = get input from console read
-      - if @`game`.is_valid_code(input)
+      - if @`game`.is_valid_guess(input)
         - return @`game`.code_string_to_array(input)
       - @`game`.print_invalid_input_message
 
@@ -225,48 +220,8 @@
 - also possible: wrap all classes above inside a `Mastermind` module
 
 ## UI Design
-<!--
-### Screen Design 1
 
-```
-Last Guess and Feedback:
-6 1 4 2
-
-✅ 2
-❌ 0
-
-The secret code is a 4-length sequence
-of any combination of the below choices
-that may contain duplicates.
-
-Possible choices: 1, 2, 3, 4, 5, 6
-Guesses left: 11
-Enter your guess (no spaces):
-```
-
-### Screen Design 2
-
-```
-[#] 1  2  3  4  5  6  7  8  9  10 11 12
-
-    6  6  6  6  6  6  6  6  6  6  6  6
-    1  1  1  1  1  1  1  1  1  1  1  1
-    4  4  4  4  4  4  4  4  4  4  4  4
-    2  2  2  2  2  2  2  2  2  2  2  2
-
-[x] 2  2  2  2  2  2  2  2  2  2  2  2
-[?] 0  0  0  0  0  0  0  0  0  0  0  0
-
-The secret code is a 4-length sequence
-of any combination of the below choices
-that may contain duplicates.
-
-Possible choices: 1, 2, 3, 4, 5, 6
-Guesses left: 11
-Enter your guess (no spaces):
-``` -->
-
-### Screen Design 3
+### Screen Design
 
 ```
 Tries  Guess      OK  x
