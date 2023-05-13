@@ -90,7 +90,7 @@ class Game
   # easily compared against @secret_code
   def parse_guess(guess)
     res = []
-    guess.each do |char|
+    guess.each_char do |char|
       res.push(char.to_i)
     end
     res
@@ -115,23 +115,21 @@ class Game
 
   def print_board
     # TODO
+    puts("TODO: print_board\n\n")
   end
 
-  def print_breaker_prompt
+  def print_breaker_prompt(is_valid_input, invalid_input)
     res = [
-      "The secret code is a #{@code_length} sequence\n",
+      "The secret code is a #{@code_length}-length sequence\n",
       "of any combination of the below choices\n",
       "that may contain duplicates\n",
       "\n",
-      "Possible choices#{@choices.to_a}\n",
+      "Possible choices: #{@choices.to_a}\n",
       "Guess attempts left: #{@max_guesses - @guesses.size}\n",
+      "#{is_valid_input ? '' : "'#{invalid_input}' is not a valid guess. Try again.\n"}",
       "Enter your guess (no spaces):"
     ]
     puts(res.join)
-  end
-
-  def print_invalid_input_message(input)
-    puts("\n#{input} is not a valid guess. Try again.")
   end
 
   def print_breaker_won
@@ -161,7 +159,19 @@ class HumanPlayer < Player
   end
 
   def get_guess
-    # TODO
+    is_valid = true
+    last_input = nil
+    while true
+      @game.clear_console
+      @game.print_board
+      @game.print_breaker_prompt(is_valid, last_input)
+      guess = gets.chomp
+      if @game.is_valid_guess?(guess)
+        return @game.parse_guess(guess)
+      end
+      is_valid = false
+      last_input = guess
+    end
   end
 end
 
@@ -172,7 +182,15 @@ class ComputerPlayer < Player
     @@name
   end
 
-  def make_code
-    # TODO
+  def get_code
+    choices = @game.choices.to_a
+    res = []
+    prng = Random.new
+    @game.code_length.times do |i|
+      random_pos = prng.rand(0..choices.size - 1)
+      res.push(choices[random_pos])
+    end
+
+    res
   end
 end
