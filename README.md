@@ -9,7 +9,8 @@ ruby index.rb
 ## How to test
 
 ```
-TODO
+cd specs
+rspec index_spec.rb
 ```
 ## Requirements
 
@@ -23,3 +24,5 @@ TODO
 
 - OOP Design
 - Unit and Integration Testing
+- Input validation
+- Handling edge cases
