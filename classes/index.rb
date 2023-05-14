@@ -76,7 +76,6 @@ class Game
     true
   end
 
-  # TODO - has bugs handling certain cases
   def get_response(guess)
     res = { :correct => 0, :misplaced => 0 }
 
