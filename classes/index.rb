@@ -115,7 +115,6 @@ class Game
     res
   end
 
-  # TODO - appears to be off by 1
   def did_maker_win?
     @guesses.size >= @max_guesses
   end
