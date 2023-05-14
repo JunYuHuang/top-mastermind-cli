@@ -1,5 +1,4 @@
 require 'set'
-require 'io/console'
 
 class Game
   def initialize(player_maker_class, player_breaker_class)
@@ -20,14 +19,34 @@ class Game
 
   attr_reader(:choices)
   attr_reader(:code_length)
-  attr_reader(:max_guesses)
+  attr_accessor(:max_guesses)
   attr_reader(:players)
   attr_accessor(:guesses)
   attr_accessor(:secret_code)
   attr_accessor(:responses)
 
   def play
-    # TODO
+    while true
+      if !is_secret_code_set?
+        @secret_code = get_player_maker.get_code
+      end
+      if did_maker_win?
+        clear_console
+        print_board
+        print_maker_won
+        print_secret_code
+        return
+      end
+      guess = get_player_breaker.get_guess
+      update_game(guess, get_response(guess))
+      if did_breaker_win?(guess)
+        clear_console
+        print_board
+        print_breaker_won
+        print_secret_code
+        return
+      end
+    end
   end
 
   def get_player_breaker
@@ -96,8 +115,9 @@ class Game
     res
   end
 
+  # TODO - appears to be off by 1
   def did_maker_win?
-    @guesses.size > @max_guesses
+    @guesses.size >= @max_guesses
   end
 
   def did_breaker_win?(code)
@@ -110,7 +130,11 @@ class Game
   end
 
   def clear_console
-    $stdout.clear_screen
+    if RUBY_PLATFORM =~ /win32|win64|\.NET|windows|cygwin|mingw32/i
+      system('cls')
+    else
+      system('clear')
+    end
   end
 
   def print_board
@@ -118,23 +142,23 @@ class Game
     table_header = ["Try  Guess      OK  x\n"]
     res.push(table_header)
 
-    @max_guesses.times do |i|
+    @max_guesses.times do |row_pos|
       row = []
-      tries_cell = "#{i + 1}" + " " * (5 - (i + 1).to_s.size)
+      tries_cell = "#{row_pos + 1}" + " " * (5 - (row_pos + 1).to_s.size)
       row.push(tries_cell)
 
-      is_in_bounds = i < @guesses.size
+      is_in_bounds = row_pos < @guesses.size
       if is_in_bounds
         guess = []
-        @guesses[i].each_with_index do |el, i|
-          is_last_pos = i == @guesses[i].size - 1
+        @guesses[row_pos].each_with_index do |el, i|
+          is_last_pos = i == @code_length - 1
           guess.push(is_last_pos ? el : "#{el} ")
         end
         row.push(guess.join)
         row.push(" " * 4)
 
-        row.push(" " + @responses[i][:correct].to_s)
-        row.push("  " + @responses[i][:misplaced].to_s)
+        row.push(" " + @responses[row_pos][:correct].to_s)
+        row.push("  " + @responses[row_pos][:misplaced].to_s)
       end
 
       row.push("\n")
@@ -146,12 +170,13 @@ class Game
   end
 
   def print_breaker_prompt(is_valid_input, invalid_input)
+    choices = @choices.to_a.to_s.slice(1, @choices.to_a.to_s.size - 2)
     res = [
       "The secret code is a #{@code_length}-length sequence\n",
       "of any combination of the below choices\n",
       "that may contain duplicates\n",
       "\n",
-      "Possible choices: #{@choices.to_a}\n",
+      "Possible choices: #{choices}\n",
       "Guess attempts left: #{@max_guesses - @guesses.size}\n",
       "#{is_valid_input ? '' : "'#{invalid_input}' is not a valid guess. Try again.\n"}",
       "Enter your guess (no spaces):"
@@ -160,11 +185,16 @@ class Game
   end
 
   def print_breaker_won
-    puts("\nGame ended: Code Breaker(#{get_player_breaker.to_s}) won!")
+    puts("Game ended: The Code Breaker(#{get_player_breaker.to_s}) won!\n")
   end
 
   def print_maker_won
-    puts("\nGame ended: Code Maker(#{get_player_maker.to_s}) won!")
+    puts("Game ended: The Code Maker(#{get_player_maker.to_s}) won!\n")
+  end
+
+  def print_secret_code
+    code = @secret_code.map { |char| char }
+    puts("The Code Maker(#{get_player_maker.to_s})'s secret code was #{code.join}\n")
   end
 end
 
