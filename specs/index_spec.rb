@@ -75,32 +75,47 @@ RSpec.describe 'Game' do
     end
   end
 
-  # TODO - has failing tests
-  # describe 'get_response' do
-  #   it "returns { correct: 1, misplaced: 0 } if called with [1,1,1,1] and the secret code is [1,2,3,4]" do
-  #     game = Game.new(ComputerPlayer, HumanPlayer)
-  #     game.secret_code = [1,2,3,4]
-  #     guess = [1,1,1,1]
-  #     expected = { correct: 1, misplaced: 0 }
-  #     expect(game.get_response(guess)).to eq(expected)
-  #   end
+  describe 'get_response' do
+    it "returns { correct: 1, misplaced: 0 } if called with [1,1,1,1] and the secret code is [1,2,3,4]" do
+      game = Game.new(ComputerPlayer, HumanPlayer)
+      game.secret_code = [1,2,3,4]
+      guess = [1,1,1,1]
+      expected = { correct: 1, misplaced: 0 }
+      expect(game.get_response(guess)).to eq(expected)
+    end
 
-  #   it "returns { correct: 1, misplaced: 0 } if called with [3,2,4,1] and the secret code is [4,4,4,4]" do
-  #     game = Game.new(ComputerPlayer, HumanPlayer)
-  #     game.secret_code = [4,4,4,4]
-  #     guess = [3,2,4,1]
-  #     expected = { correct: 1, misplaced: 0 }
-  #     expect(game.get_response(guess)).to eq(expected)
-  #   end
+    it "returns { correct: 0, misplaced: 0 } if called with [3,2,4,1] and the secret code is [5,5,5,5]" do
+      game = Game.new(ComputerPlayer, HumanPlayer)
+      game.secret_code = [5,5,5,5]
+      guess = [3,2,4,1]
+      expected = { correct: 0, misplaced: 0 }
+      expect(game.get_response(guess)).to eq(expected)
+    end
 
-  #   it "returns { correct: 2, misplaced: 1 } if called with [1,1,1,2] and the secret code is [1,1,2,2]" do
-  #     game = Game.new(ComputerPlayer, HumanPlayer)
-  #     game.secret_code = [1,1,2,2]
-  #     guess = [1,1,1,2]
-  #     expected = { correct: 2, misplaced: 1 }
-  #     expect(game.get_response(guess)).to eq(expected)
-  #   end
-  # end
+    it "returns { correct: 0, misplaced: 1 } if called with [5,1,5,5] and the secret code is [1,2,2,2]" do
+      game = Game.new(ComputerPlayer, HumanPlayer)
+      game.secret_code = [5,1,5,5]
+      guess = [1,2,2,2]
+      expected = { correct: 0, misplaced: 1 }
+      expect(game.get_response(guess)).to eq(expected)
+    end
+
+    it "returns { correct: 1, misplaced: 1 } if called with [5,2,3,5] and the secret code is [2,2,2,3]" do
+      game = Game.new(ComputerPlayer, HumanPlayer)
+      game.secret_code = [5,2,3,5]
+      guess = [2,2,2,3]
+      expected = { correct: 1, misplaced: 1 }
+      expect(game.get_response(guess)).to eq(expected)
+    end
+
+    it "returns { correct: 3, misplaced: 0 } if called with [1,1,1,2] and the secret code is [1,1,2,2]" do
+      game = Game.new(ComputerPlayer, HumanPlayer)
+      game.secret_code = [1,1,2,2]
+      guess = [1,1,1,2]
+      expected = { correct: 3, misplaced: 0 }
+      expect(game.get_response(guess)).to eq(expected)
+    end
+  end
 
   describe "parse_guess" do
     it "returns [1,2,3,4] if called with '1234'" do
