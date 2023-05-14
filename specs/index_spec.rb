@@ -115,10 +115,10 @@ RSpec.describe 'Game' do
       expect(game.did_maker_win?).to eq(false)
     end
 
-    it "returns false if the maximum of guess attempts have been made" do
+    it "returns true if the maximum of guess attempts have been made" do
       game = Game.new(ComputerPlayer, HumanPlayer)
       game.guesses = [:fake_guess] * game.max_guesses
-      expect(game.did_maker_win?).to eq(false)
+      expect(game.did_maker_win?).to eq(true)
     end
 
     it "returns true if the maximum of guess attempts has been exceeded by 1" do
