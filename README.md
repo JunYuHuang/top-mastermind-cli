@@ -1,5 +1,13 @@
 # Mastermind Console Game
 
+![Gameplay Demo](/assets/mastermind-console-demo.gif)
+
+This is a 1-round console implementation of the classic board game 'Mastermind' that allows you to play as the code breaker against the computer (who is the code maker).
+
+Game parameters:
+* The secret code is a sequence of integers in the range \[1, 6]
+* Code breaker has up to 12 tries to guess the secret code
+
 ## Quick Start
 
 ### Requirements
