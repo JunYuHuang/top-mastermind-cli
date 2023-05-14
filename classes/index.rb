@@ -114,8 +114,35 @@ class Game
   end
 
   def print_board
-    # TODO
-    puts("TODO: print_board\n\n")
+    res = []
+    table_header = ["Try  Guess      OK  x\n"]
+    res.push(table_header)
+
+    @max_guesses.times do |i|
+      row = []
+      tries_cell = "#{i + 1}" + " " * (5 - (i + 1).to_s.size)
+      row.push(tries_cell)
+
+      is_in_bounds = i < @guesses.size
+      if is_in_bounds
+        guess = []
+        @guesses[i].each_with_index do |el, i|
+          is_last_pos = i == @guesses[i].size - 1
+          guess.push(is_last_pos ? el : "#{el} ")
+        end
+        row.push(guess.join)
+        row.push(" " * 4)
+
+        row.push(" " + @responses[i][:correct].to_s)
+        row.push("  " + @responses[i][:misplaced].to_s)
+      end
+
+      row.push("\n")
+      res.push(row.join)
+    end
+
+    res.push("\n")
+    puts(res.join)
   end
 
   def print_breaker_prompt(is_valid_input, invalid_input)
