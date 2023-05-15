@@ -7,6 +7,7 @@ This is a 1-round console implementation of the classic board game 'Mastermind' 
 Game parameters:
 * The secret code is a sequence of integers in the range \[1, 6]
 * The secret code is of length 4
+* The secret code may have duplicate integers or choices.
 * Code breaker has up to 12 tries to guess the secret code
 * If the computer bot is the code breaker, it uses a random brute force strategy that involves a bit of cheating to guess your secret code.
 
