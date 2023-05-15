@@ -48,6 +48,31 @@ RSpec.describe 'Game' do
     end
   end
 
+  describe "count_code_count" do
+    it "returns nil if called if called and secret code's size is not correct" do
+      game = Game.new(ComputerPlayer, HumanPlayer)
+      res = game.count_secret_code
+      expected = nil
+      expect(res).to eq(expected)
+    end
+
+    it "returns { 1 => 1, 2 => 1, 3 => 1, 4 => 1 } if called and secret code is 1234" do
+      game = Game.new(ComputerPlayer, HumanPlayer)
+      game.secret_code = [1, 2, 3, 4]
+      res = game.count_secret_code
+      expected = { 1 => 1, 2 => 1, 3 => 1, 4 => 1 }
+      expect(res).to eq(expected)
+    end
+
+    it "returns { 1 => 2, 2 => 1, 5 => 1 } if called and secret code is 1125" do
+      game = Game.new(ComputerPlayer, HumanPlayer)
+      game.secret_code = [1, 1, 2, 5]
+      res = game.count_secret_code
+      expected = { 1 => 2, 2 => 1, 5 => 1 }
+      expect(res).to eq(expected)
+    end
+  end
+
   describe 'is_valid_guess?' do
     it "returns false if called with an empty string" do
       game = Game.new(ComputerPlayer, HumanPlayer)
@@ -79,6 +104,7 @@ RSpec.describe 'Game' do
     it "returns { correct: 1, misplaced: 0 } if called with [1,1,1,1] and the secret code is [1,2,3,4]" do
       game = Game.new(ComputerPlayer, HumanPlayer)
       game.secret_code = [1,2,3,4]
+      game.secret_code_count = game.count_secret_code
       guess = [1,1,1,1]
       expected = { correct: 1, misplaced: 0 }
       expect(game.get_response(guess)).to eq(expected)
@@ -113,6 +139,14 @@ RSpec.describe 'Game' do
       game.secret_code = [1,1,2,2]
       guess = [1,1,1,2]
       expected = { correct: 3, misplaced: 0 }
+      expect(game.get_response(guess)).to eq(expected)
+    end
+
+    it "returns { correct: 1, misplaced: 2 } if called with [1,2,1,1] and the secret code is [1,1,2,5]" do
+      game = Game.new(ComputerPlayer, HumanPlayer)
+      game.secret_code = [1,1,2,5]
+      guess = [1,2,1,1]
+      expected = { correct: 1, misplaced: 2 }
       expect(game.get_response(guess)).to eq(expected)
     end
   end

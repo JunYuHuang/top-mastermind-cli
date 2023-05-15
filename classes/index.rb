@@ -14,6 +14,7 @@ class Game
     ]
     @guesses = []
     @secret_code = []
+    @secret_code_count = {}
     @responses = []
   end
 
@@ -22,6 +23,7 @@ class Game
   attr_accessor(:max_guesses)
   attr_reader(:players)
   attr_accessor(:guesses)
+  attr_accessor(:secret_code_count)
   attr_accessor(:secret_code)
   attr_accessor(:responses)
 
@@ -29,6 +31,7 @@ class Game
     while true
       if !is_secret_code_set?
         @secret_code = get_player_maker.get_code
+        @secret_code_count = count_secret_code
       end
       if did_maker_win?
         clear_console
@@ -63,6 +66,15 @@ class Game
     return @secret_code.size > 0
   end
 
+  def count_secret_code
+    return nil if @secret_code.size != @code_length
+    res = {}
+    @secret_code.each do |choice|
+      res[choice] = res.fetch(choice, 0) + 1
+    end
+    res
+  end
+
   def is_valid_guess?(guess)
     return false if guess.class != String
     return false if guess.size != @code_length
@@ -77,6 +89,7 @@ class Game
   end
 
   def get_response(guess)
+    count_copy = @secret_code_count.size == 0 ? count_secret_code : {}.replace(@secret_code_count)
     res = { :correct => 0, :misplaced => 0 }
 
     correct_indices = Set.new
@@ -84,21 +97,16 @@ class Game
       if value == @secret_code[i]
         res[:correct] += 1
         correct_indices.add(i)
+        count_copy[value] -= 1
       end
     end
 
-    misplaced_choices = Set.new
-    @secret_code.each_with_index do |value, i|
-      next if correct_indices.include?(i)
-      misplaced_choices.add(value)
-    end
-
-    puts("correct_indices: #{correct_indices.to_a}")
-    puts("misplaced_choices: #{misplaced_choices.to_a}")
-
     guess.each_with_index do |value, i|
       next if correct_indices.include?(i)
-      res[:misplaced] += 1 if misplaced_choices.include?(value)
+      if count_copy.fetch(value, 0) > 0
+        res[:misplaced] += 1
+        count_copy[value] -= 1
+      end
     end
 
     res
