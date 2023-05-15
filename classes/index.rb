@@ -67,6 +67,12 @@ class Game
     res[0]
   end
 
+  def is_valid_role?(role)
+    return false if role.class != String
+    role = role.downcase
+    role == "breaker" || role == "maker"
+  end
+
   def swap_player_roles!
     old_breaker = get_player_breaker
     old_maker = get_player_maker

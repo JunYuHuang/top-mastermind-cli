@@ -61,6 +61,28 @@ RSpec.describe 'Game' do
     end
   end
 
+  describe 'is_valid_role?' do
+    it "returns false if called with nil" do
+      game = Game.new(HumanPlayer, ComputerPlayer)
+      expect(game.is_valid_role?(nil)).to eq(false)
+    end
+
+    it "returns false if called with ''" do
+      game = Game.new(HumanPlayer, ComputerPlayer)
+      expect(game.is_valid_role?('')).to eq(false)
+    end
+
+    it "returns true if called with 'BREAKER'" do
+      game = Game.new(ComputerPlayer, HumanPlayer)
+      expect(game.is_valid_role?('BREAKER')).to eq(true)
+    end
+
+    it "returns true if called with 'maker'" do
+      game = Game.new(HumanPlayer, ComputerPlayer)
+      expect(game.is_valid_role?('maker')).to eq(true)
+    end
+  end
+
   describe "swap_player_roles!" do
     it "works if called and computer is initially maker and human is initially breaker" do
       game = Game.new(ComputerPlayer, HumanPlayer)
