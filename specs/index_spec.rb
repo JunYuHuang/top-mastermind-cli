@@ -21,6 +21,22 @@ RSpec.describe 'Game' do
     end
   end
 
+  describe "get_human_player" do
+    it "works if called and human player is breaker" do
+      game = Game.new(ComputerPlayer, HumanPlayer)
+      human = game.get_human_player
+      expect(human.to_s).to eq("Human")
+      expect(human.role).to eq(:breaker)
+    end
+
+    it "works if called and human player is maker" do
+      game = Game.new(HumanPlayer, ComputerPlayer)
+      human = game.get_human_player
+      expect(human.to_s).to eq("Human")
+      expect(human.role).to eq(:maker)
+    end
+  end
+
   describe 'get_player_breaker' do
     it "works if called and user is breaker" do
       game = Game.new(ComputerPlayer, HumanPlayer)
@@ -42,6 +58,32 @@ RSpec.describe 'Game' do
     it "works if called and human is maker" do
       game = Game.new(HumanPlayer, ComputerPlayer)
       expect(game.get_player_maker.to_s).to eq("Human")
+    end
+  end
+
+  describe "swap_player_roles!" do
+    it "works if called and computer is initially maker and human is initially breaker" do
+      game = Game.new(ComputerPlayer, HumanPlayer)
+      old_maker = game.players[0]
+      old_breaker = game.players[1]
+      expect(old_maker.role).to eq(:maker)
+      expect(old_breaker.role).to eq(:breaker)
+
+      game.swap_player_roles!
+      expect(old_maker.role).to eq(:breaker)
+      expect(old_breaker.role).to eq(:maker)
+    end
+
+    it "works if called and human is initially maker and computer is initially breaker" do
+      game = Game.new(HumanPlayer, ComputerPlayer)
+      old_maker = game.players[0]
+      old_breaker = game.players[1]
+      expect(old_maker.role).to eq(:maker)
+      expect(old_breaker.role).to eq(:breaker)
+
+      game.swap_player_roles!
+      expect(old_maker.role).to eq(:breaker)
+      expect(old_breaker.role).to eq(:maker)
     end
   end
 

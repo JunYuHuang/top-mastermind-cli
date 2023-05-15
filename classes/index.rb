@@ -52,6 +52,11 @@ class Game
     end
   end
 
+  def get_human_player
+    res = @players.select { |player| player.to_s == "Human" }
+    res[0]
+  end
+
   def get_player_breaker
     res = @players.select { |player| player.role == :breaker }
     res[0]
@@ -60,6 +65,14 @@ class Game
   def get_player_maker
     res = @players.select { |player| player.role == :maker }
     res[0]
+  end
+
+  def swap_player_roles!
+    old_breaker = get_player_breaker
+    old_maker = get_player_maker
+    old_breaker.role = :maker
+    old_maker.role = :breaker
+    nil
   end
 
   def is_secret_code_set?
