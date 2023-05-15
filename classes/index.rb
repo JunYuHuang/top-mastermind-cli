@@ -28,6 +28,8 @@ class Game
   attr_accessor(:responses)
 
   def play
+    human_role = get_human_player.get_role
+    swap_player_roles! if human_role != get_human_player.role
     while true
       if !is_secret_code_set?
         @secret_code = get_player_maker.get_code
@@ -141,6 +143,14 @@ class Game
     res
   end
 
+  def parse_role(role)
+    return nil if role.class != String
+    role = role.downcase
+    puts(role)
+    return nil if role != "breaker" && role != "maker"
+    role == "breaker" ? :breaker : :maker
+  end
+
   def did_maker_win?
     @guesses.size >= @max_guesses
   end
@@ -223,6 +233,18 @@ class Game
     puts(res.join)
   end
 
+  def print_role_prompt(is_valid_input, invalid_input)
+    res = [
+      "Be the Code Breaker or the Code Maker for this game.\n",
+      "The Code Breaker tries to correctly guess the secret code.\n",
+      "The Code Maker sets the secret code.\n",
+      "#{is_valid_input ? '' : "'#{invalid_input}' is not a valid role. Try again.\n"}",
+      "Enter your role for the game\n",
+      "('breaker' or 'maker' without the quotes):\n"
+    ]
+    puts(res.join)
+  end
+
   def print_breaker_won
     puts("Game ended: #{get_player_breaker.to_s}(Code Breaker) won!\n")
   end
@@ -282,6 +304,21 @@ class HumanPlayer < Player
       end
       is_valid = false
       last_input = code
+    end
+  end
+
+  def get_role
+    is_valid = true
+    last_input = nil
+    while true
+      @game.clear_console
+      @game.print_role_prompt(is_valid, last_input)
+      role = gets.chomp
+      if @game.is_valid_role?(role)
+        return @game.parse_role(role)
+      end
+      is_valid = false
+      last_input = role
     end
   end
 end

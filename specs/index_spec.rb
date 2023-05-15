@@ -232,6 +232,23 @@ RSpec.describe 'Game' do
     end
   end
 
+  describe "parse_role" do
+    it "returns nil if called with 'asa'" do
+      game = Game.new(ComputerPlayer, HumanPlayer)
+      expect(game.parse_role('asa')).to eq(nil)
+    end
+
+    it "returns :breaker if called with 'BREAker'" do
+      game = Game.new(ComputerPlayer, HumanPlayer)
+      expect(game.parse_role('BREAker')).to eq(:breaker)
+    end
+
+    it "returns :maker if called with 'maker'" do
+      game = Game.new(ComputerPlayer, HumanPlayer)
+      expect(game.parse_role('maker')).to eq(:maker)
+    end
+  end
+
   describe 'did_maker_win?' do
     it "returns false if no guess attempts have been made" do
       game = Game.new(ComputerPlayer, HumanPlayer)
