@@ -183,16 +183,16 @@ class Game
   end
 
   def print_breaker_won
-    puts("Game ended: The Code Breaker(#{get_player_breaker.to_s}) won!\n")
+    puts("Game ended: #{get_player_breaker.to_s}(Code Breaker) won!\n")
   end
 
   def print_maker_won
-    puts("Game ended: The Code Maker(#{get_player_maker.to_s}) won!\n")
+    puts("Game ended: #{get_player_maker.to_s}(Code Maker) won!\n")
   end
 
   def print_secret_code
     code = @secret_code.map { |char| char }
-    puts("The Code Maker(#{get_player_maker.to_s})'s secret code was #{code.join}\n")
+    puts("#{get_player_maker.to_s}(Code Maker)'s secret code was #{code.join}\n")
   end
 end
 
