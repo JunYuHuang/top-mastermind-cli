@@ -178,7 +178,7 @@ class Game
   def print_breaker_prompt(is_valid_input, invalid_input)
     choices = @choices.to_a.to_s.slice(1, @choices.to_a.to_s.size - 2)
     res = [
-      "The secret code is a #{@code_length}-length sequence\n",
+      "The secret code is a #{@code_length}-sized sequence\n",
       "of any combination of the below choices\n",
       "that may contain duplicates\n",
       "\n",
@@ -186,6 +186,20 @@ class Game
       "Guess attempts left: #{@max_guesses - @guesses.size}\n",
       "#{is_valid_input ? '' : "'#{invalid_input}' is not a valid guess. Try again.\n"}",
       "Enter your guess (no spaces):"
+    ]
+    puts(res.join)
+  end
+
+  def print_maker_prompt(is_valid_input, invalid_input)
+    choices = @choices.to_a.to_s.slice(1, @choices.to_a.to_s.size - 2)
+    res = [
+      "Set a #{@code_length}-sized secret code sequence\n",
+      "of any combination of the below choices\n",
+      "that may contain duplicates\n",
+      "\n",
+      "Possible choices: #{choices}\n",
+      "#{is_valid_input ? '' : "'#{invalid_input}' is not a valid secret code. Try again.\n"}",
+      "Enter your secret code (no spaces):"
     ]
     puts(res.join)
   end
@@ -236,24 +250,66 @@ class HumanPlayer < Player
       last_input = guess
     end
   end
+
+  def get_code
+    is_valid = true
+    last_input = nil
+    while true
+      @game.clear_console
+      @game.print_maker_prompt(is_valid, last_input)
+      code = gets.chomp
+      if @game.is_valid_guess?(code)
+        return @game.parse_guess(code)
+      end
+      is_valid = false
+      last_input = code
+    end
+  end
 end
 
 class ComputerPlayer < Player
   @@name = 'Computer'
+
+  def initialize(game, role)
+    super(game, role)
+    @correct_guess_positions = {}
+  end
+
+  attr_accessor(:correct_guess_positions)
 
   def to_s
     @@name
   end
 
   def get_code
-    choices = @game.choices.to_a
     res = []
-    prng = Random.new
     @game.code_length.times do |i|
-      random_pos = prng.rand(0..choices.size - 1)
-      res.push(choices[random_pos])
+      res.push(get_random_choice)
     end
 
     res
+  end
+
+  # uses a random brute force + cheating strategy
+  # to guess the secret code
+  def get_guess
+    guess = get_code
+    guess.each_index do |i|
+      if guess[i] == @game.secret_code[i]
+        @correct_guess_positions[i] = guess[i]
+      end
+    end
+
+    @correct_guess_positions.each do |pos, val|
+      guess[pos] = val
+    end
+
+    guess
+  end
+
+  def get_random_choice
+    choices = @game.choices.to_a
+    random_pos = Random.new.rand(0..choices.size - 1)
+    choices[random_pos]
   end
 end

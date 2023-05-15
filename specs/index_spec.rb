@@ -22,16 +22,26 @@ RSpec.describe 'Game' do
   end
 
   describe 'get_player_breaker' do
-    it "works if called" do
+    it "works if called and user is breaker" do
       game = Game.new(ComputerPlayer, HumanPlayer)
       expect(game.get_player_breaker.to_s).to eq("Human")
+    end
+
+    it "works if called and computer is breaker" do
+      game = Game.new(HumanPlayer, ComputerPlayer)
+      expect(game.get_player_breaker.to_s).to eq("Computer")
     end
   end
 
   describe 'get_player_maker' do
-    it "works if called" do
+    it "works if called and computer is maker" do
       game = Game.new(ComputerPlayer, HumanPlayer)
       expect(game.get_player_maker.to_s).to eq("Computer")
+    end
+
+    it "works if called and human is maker" do
+      game = Game.new(HumanPlayer, ComputerPlayer)
+      expect(game.get_player_maker.to_s).to eq("Human")
     end
   end
 
@@ -217,6 +227,22 @@ RSpec.describe 'ComputerPlayer' do
       code.each do |el|
         expect(game.choices.include?(el)).to eq(true)
       end
+    end
+  end
+
+  describe 'get_guess' do
+    it "works if called" do
+      game = Game.new(HumanPlayer, ComputerPlayer)
+      game.secret_code = [1, 2, 3, 4]
+      cpu_player = game.get_player_breaker
+      expect(cpu_player.role).to eq(:breaker)
+      expect(cpu_player.to_s).to eq("Computer")
+
+      guess = cpu_player.get_guess
+      while guess != game.secret_code
+        guess = cpu_player.get_guess
+      end
+      expect(guess).to eq(game.secret_code)
     end
   end
 end
