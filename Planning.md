@@ -44,7 +44,7 @@
   - computer does not choose role directly
   - if computer is code breaker, need algorithm to guess correct code
     - initial algorithm: random
-    - if have time, implement backtracking-based algorithm
+    - implement counting-based algorithm
 - console UI "screens"
   - if human player is code maker, prompt for the code
   - display game board as string in console when
@@ -54,6 +54,14 @@
 
 ## Game Logic
 
+- get player role choice (breaker or maker) from human player
+- while player choice is invalid
+  - prompt again for role choice
+- set player roles correctly
+  - if human player chose role 'breaker',
+    - computer player should have role 'maker
+  - else
+    - human = 'maker', computer = 'breaker'
 - while game is not over
   - if secret code has not been set
     - prompt code maker to enter the code
@@ -116,6 +124,11 @@
     - returns the element in @`players` that has the @`role` property of `:breaker`
   - get_player_maker()
     - returns the element in @`players` that has the @`role` property of `:maker`
+  - swap_player_roles!()
+    - if human player is 'breaker',
+      - sets human player's role to 'maker' and computer player's role to 'breaker'
+    - else
+      - sets human player's role to 'breaker' and computer player's role to 'maker'
   - is_secret_code_set?()
     - returns true if @`secret_code` has been set by the code maker else false
   - is_valid_guess?(guess)
@@ -204,26 +217,152 @@
       - if @`game`.is_valid_guess(input)
         - return @`game`.parse_guess(input)
       - @`game`.print_invalid_input_message
+  - get_code()
+    - TODO
 
 - `ComputerPlayer` class that inherits from `Player` class
   - @@`NAME` = 'Computer';
   - to_s()
     - returns @@`NAME`
-  - make_code(game)
+  - get_code
     - `options`: gets copy of @`game`.choices as an array
     - initialise empty int array `res`
     - randomly pick and push @`game`.code_length code pieces to `res` to form the secret code
       - use built-in `Random` class and its `rand()` method
     - return `res`
-
+  - get_guess(strategy = :random)
+    - TODO: uses a particular strategy or algorithm to try to guess the secret code
+    - strategy methods to implement
+      - random brute force (just use `get_code` method)
+      - random but verify and keep correct guess pieces (to implement)
+      - random but cheat and keep choices that match in the secret code at the right position
+      - Donald Knuth's strategy?
 - also possible: wrap all classes above inside a `Mastermind` module
+
+## Computer Player's Code Guessing Strategy Algorithm / Pseudocode
+
+- naive random but counts correct guess parts strategy
+- variables
+  - `ordered_choices`: @`choices` but converted to an ASC sorted array (i.e. [ 1, 2, 3, 4, 5, 6 ])
+  - `count`: hashmap that maps each unique choice (an int) to an int that counts its number of occurrences in the secret code
+  - `wrong_positions`: hashmap that maps each unique choice (an int) to a list of ints that each represent the confirmed wrong positions for that choice
+  - `right_positions`: hashmap that maps each unique choice (an int) to a list of ints that each represent the confirmed correct position for that choice
+  - `OK`: non-negative int that represents how many parts of the guess are in the code and are in the right position
+  - `x`: non-negative int that represents how many parts of the gues are in the code but in the wrong position
+- keep trying a guess of all of a single choice (e.g. `1111`)
+  - note the choice's number of occurrences in `choice_to_count`
+    - it's 0 if it is not part of the code, else some int > 0
+  - if the choice is part of the code, stop
+  - else keep trying
+- if found a choice that is in the code,
+  - stop the prev strat of brute forcing a code consisting of only a single choice
+  - determine the correct position for the choice that is in the code but whose position is unknown
+    - choose the next choice that may be part of the code (if in `choice_to_count`, its value > 0)
+    - for the next guess, replace one of the positions in the prev guess with this next choice
+- evaluate the feedback from the next guess (e.g. `1112`)
+  - if `OK` is 0 and `x` is 0:
+    - e.g. code = 3521, guess = 1112
+    - TODO
+
+
+### Examples
+
+#### Example 1
+
+```
+code = 1125
+
+Try Guess OK x
+1   1111   2 0
+2   1112   2 1
+3   2111   1 1
+4   1211   1 2
+5   1121   3 0
+
+count = {
+  1 : 2,
+  2 : 1
+}
+
+right_positions = {
+  1 : [0, 1],
+  2 : [2]
+}
+
+wrong_positions = {
+  1 : [0, 2, 1, 3],
+  2 : [3, 0, 1, 2],
+}
+```
+
+try #1 findings
+- code has two 1's but don't know their correct positions
+- for future guesses (try #2+)
+  - always keep two 1's somewhere in the guess
+  - determine the correct positions for the two 1's
+- for next guess (try #2)
+  - change a position in try #1's guess to the next value that:
+    - may be in code but we haven't ruled out yet by deduction
+    - try the value in `ordered_choices` e.g. 2
+
+try #2 findings
+- code also has at least one 2 but don't know its correct position
+- pos 3 is not the correct position for the 2
+  - note this by pushing 3 to the list `wrong_positions[2]`
+- code's remaining unique choice / piece
+  - cannot be a 1
+  - can be a 2, 3, 4, 5, or 6
+- for future guesses (try #3+)
+  - always keep two 1's and one 2 in the guess
+  - determine the correct positions for the two 1's
+  - determine the correct position for the 2
+- for next guess (try #3)
+  - swap the 2's position in the guess while keeping the two 1's
+
+try #3 findings
+- code has two 1's and one 2 but dont know all their correct positions
+- `OK` is 1 less compared to from try #2 so we know:
+  - pos 0 is the correct position for one of two 1's
+    - note this by pushing 0 to the list `right_positions\[1]`
+  - pos 0 is not the correct position for the 2
+    - note this by pushing 2 to the list `wrong_positions[2]`
+- for future guesses (try #4+)
+  - always keep two 1's and one 2 in the guess
+  - determine the correct positions for the two 1's
+  - determine the correct position for the 2
+- for next guess (try #4)
+  - keep the two 1's
+    - one of the 1's should be at the confirmed correct pos 0
+  - pick a new position for the 2 that hasn't been tried yet (not pos 0 and not pos 3)
+
+try #4 findings
+- `OK` stayed the same but `x` increased by 1 (to 2) the same so we know
+  - the 2 is not in the correct pos
+    - note this down in `wrong_positions[2]`
+    - see below: confirm 2's correct pos is 2
+  - the 1 that is not at pos 0 (at pos 2 or 3) is not in the correct pos
+  - last 1's correct pos cannot be 0 or 2
+    - so it must be 1 or 3
+- if any `wrong_positions[choice].size` == @`code_length` - 1
+  - know by elimination that correct pos for `choice` is whatever choice that is NOT in `wrong_positions[choice]`
+  - confirm 2's correct pos is 2
+- for future guesses (try #4+)
+  - always keep two 1's and one 2 in the guess
+  - determine correct pos for remaining 1
+- for next guess (try #4)
+  - place the 2 at its confirmed correct pos 2
+  - keep the two 1's
+    - place one 1 at its confirmed correct pos 0
+
+try #5 findings
+- `OK` and `x` counts stayed the same so we know
 
 ## UI Design
 
 ### Screen Design
 
 ```
-Tries  Guess      OK  x
+Try    Guess      OK  x
 1      1 2 3 4     0  0
 2      1 2 3 4     0  0
 3      1 2 3 4     0  0
